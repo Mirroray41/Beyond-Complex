@@ -2,14 +2,12 @@ package net.zappfire.beyond_complex.item.advanced;
 
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.zappfire.beyond_complex.item.ModItems;
 
 public class Flint extends Item {
 
@@ -27,6 +25,7 @@ public class Flint extends Item {
             if (pContext.getLevel().getBlockState(positionClicked).getBlock().toString().equals("Block{minecraft:stone}")) {
                 pContext.getPlayer().getCooldowns().addCooldown(this, 10);
                 itemStack.shrink(1);
+
             }
         }
         return super.useOn(pContext);
