@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " #",
+        "/B"
+    ],
+    "key": {
+        "#": {
+            "item": "beyond_complex:sharpened_flint"
+        },
+        "/": {
+            "item": "minecraft:stick"
+        },
+        "B": {
+            "item": "beyond_complex:straw_string"
+        }
+    },
+    "result": {
+        "item": "beyond_complex:flint_knife",
+        "count": 1
+    }
+}

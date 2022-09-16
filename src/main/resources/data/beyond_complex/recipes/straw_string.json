@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "beyond_complex:straw"
+        },
+        {
+            "item": "beyond_complex:straw"
+        },
+        {
+            "item": "beyond_complex:straw"
+        }
+    ],
+    "result": {
+        "item": "beyond_complex:straw_string",
+        "count": 1
+    }
+}

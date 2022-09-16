@@ -1,3 +1,20 @@
 {
-  "item.beyond_complex.straw": "Straw"
+  "//": "ITEMS:",
+  "// //": "MISC:",
+          "item.beyond_complex.straw": "Straw",
+          "item.beyond_complex.straw_string": "Straw String",
+          "item.beyond_complex.sharpened_flint": "Sharpened Flint",
+
+  "// //": "TOOLS:",
+  "// // //": "FLINT:",
+            "item.beyond_complex.flint_shovel": "Flint Shovel",
+            "item.beyond_complex.flint_axe": "Flint Axe",
+            "item.beyond_complex.flint_knife": "Flint Knife",
+
+  "//": "BLOCKS:",
+  "block.beyond_complex.temp_block": "Temp Block",
+
+  "//": "CREATIVE MODE TAB:",
+  "itemGroup.beyond_complex_tab": "Beyond Complex"
+
 }
