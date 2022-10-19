@@ -1,0 +1,6 @@
+{
+  "parent": "beyond_complex:block/pebble_parent",
+  "textures": {
+    "0_3": "minecraft:block/stone"
+  }
+}

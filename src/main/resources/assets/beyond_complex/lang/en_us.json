@@ -5,6 +5,44 @@
           "item.beyond_complex.straw_string": "Straw String",
           "item.beyond_complex.sharpened_flint": "Sharpened Flint",
 
+  "// //": "METALS:",
+  "// // //": "NUGGETS:",
+            "item.beyond_complex.tin_nugget": "Tin Nugget",
+            "item.beyond_complex.zinc_nugget": "Zinc Nugget",
+            "item.beyond_complex.lead_nugget": "Lead Nugget",
+            "item.beyond_complex.lithium_nugget": "Lithium Nugget",
+            "item.beyond_complex.bronze_nugget": "Bronze Nugget",
+            "item.beyond_complex.brass_nugget": "Brass Nugget",
+
+  "// // //": "INGOTS:",
+            "item.beyond_complex.tin_ingot": "Tin Ingot",
+            "item.beyond_complex.zinc_ingot": "Zinc Ingot",
+            "item.beyond_complex.lead_ingot": "Lead Ingot",
+            "item.beyond_complex.lithium_ingot": "Lithium Ingot",
+            "item.beyond_complex.bronze_ingot": "Bronze Ingot",
+            "item.beyond_complex.brass_ingot": "Brass Ingot",
+
+  "// // //": "RAW:",
+            "item.beyond_complex.raw_tin": "Raw Tin",
+            "item.beyond_complex.raw_zinc": "Raw Zinc",
+            "item.beyond_complex.raw_lead": "Raw Lead",
+            "item.beyond_complex.raw_lithium": "Raw Lithium",
+
+  "// // //": "DUSTS:",
+            "item.beyond_complex.tin_dust": "Tin Dust",
+            "item.beyond_complex.zinc_dust": "Zinc Dust",
+            "item.beyond_complex.lead_dust": "Lead Dust",
+            "item.beyond_complex.lithium_dust": "Lithium Dust",
+            "item.beyond_complex.bronze_dust": "Bronze Dust",
+            "item.beyond_complex.brass_dust": "Brass Dust",
+            "item.beyond_complex.iron_dust": "Iron Dust",
+            "item.beyond_complex.copper_dust": "Copper Dust",
+            "item.beyond_complex.gold_dust": "Gold Dust",
+            "item.beyond_complex.diamond_dust": "Diamond Dust",
+            "item.beyond_complex.obsidian_dust": "Obsidian Dust",
+            "item.beyond_complex.amethyst_dust": "Amethyst Dust",
+
+
   "// //": "TOOLS:",
   "// // //": "FLINT:",
             "item.beyond_complex.flint_shovel": "Flint Shovel",
@@ -12,9 +50,46 @@
             "item.beyond_complex.flint_knife": "Flint Knife",
 
   "//": "BLOCKS:",
-  "block.beyond_complex.temp_block": "Temp Block",
+  "// //": "MISC:",
+            "block.beyond_complex.simple_alloy_kiln": "Simple Alloying Kiln",
+
+  "// //": "METALS:",
+  "// // //": "DEEPSLATE ORES:",
+              "block.beyond_complex.deepslate_tin_ore": "Deepslate Tin Ore",
+              "block.beyond_complex.deepslate_zinc_ore": "Deepslate Zinc Ore",
+              "block.beyond_complex.deepslate_lead_ore": "Deepslate Lead Ore",
+              "block.beyond_complex.deepslate_lithium_ore": "Deepslate Lithium Ore",
+
+  "// // //": "ORES:",
+              "block.beyond_complex.tin_ore": "Tin Ore",
+              "block.beyond_complex.zinc_ore": "Zinc Ore",
+              "block.beyond_complex.lead_ore": "Lead Ore",
+              "block.beyond_complex.lithium_ore": "Lithium Ore",
+
+  "// // //": "METAL BLOCKS:",
+              "block.beyond_complex.tin_block": "Block of Tin",
+              "block.beyond_complex.zinc_block": "Block of Zinc",
+              "block.beyond_complex.lead_block": "Block of Lead",
+              "block.beyond_complex.lithium_block": "Block of Lithium",
+              "block.beyond_complex.bronze_block": "Block of Bronze",
+              "block.beyond_complex.brass_block": "Block of Brass",
+
+  "// // //": "RAW METAL BLOCKS:",
+              "block.beyond_complex.raw_tin_block": "Block of Raw Tin",
+              "block.beyond_complex.raw_zinc_block": "Block of Raw Zinc",
+              "block.beyond_complex.raw_lead_block": "Block of Raw Lead",
+              "block.beyond_complex.raw_lithium_block": "Block of Raw Lithium",
+
+
+  "// //": "PEBBLES:",
+            "block.beyond_complex.stone_pebble": "Stone Pebble",
+            "block.beyond_complex.andesite_pebble": "Andesite Pebble",
+            "block.beyond_complex.diorite_pebble": "Diorite Pebble",
+            "block.beyond_complex.granite_pebble": "Granite Pebble",
+            "block.beyond_complex.tin_pebble": "Tin Pebble",
+            "block.beyond_complex.copper_pebble": "Copper Pebble",
 
   "//": "CREATIVE MODE TAB:",
-  "itemGroup.beyond_complex_tab": "Beyond Complex"
+            "itemGroup.beyond_complex_tab": "Beyond Complex"
 
 }

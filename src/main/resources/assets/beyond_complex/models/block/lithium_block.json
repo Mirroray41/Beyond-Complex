@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "beyond_complex:block/lithium_block",
+    "up": "beyond_complex:block/lithium_block",
+    "north": "beyond_complex:block/lithium_block",
+    "east": "beyond_complex:block/lithium_block",
+    "south": "beyond_complex:block/lithium_block",
+    "west": "beyond_complex:block/lithium_block",
+    "particle": "beyond_complex:block/lithium_block"
+  }
+}

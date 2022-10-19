@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "beyond_complex:block/tin_pebble",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "beyond_complex:block/tin_pebble"
+    },
+    "facing=south": {
+      "model": "beyond_complex:block/tin_pebble",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "beyond_complex:block/tin_pebble",
+      "y": 270
+    }
+  }
+}

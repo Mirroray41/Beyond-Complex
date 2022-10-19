@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "beyond_complex:block/deepslate_tin_ore",
+    "up": "beyond_complex:block/deepslate_tin_ore",
+    "north": "beyond_complex:block/deepslate_tin_ore",
+    "east": "beyond_complex:block/deepslate_tin_ore",
+    "south": "beyond_complex:block/deepslate_tin_ore",
+    "west": "beyond_complex:block/deepslate_tin_ore",
+    "particle": "beyond_complex:block/deepslate_tin_ore"
+  }
+}

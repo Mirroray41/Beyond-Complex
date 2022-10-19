@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "bbb",
+        "bbb",
+        "bbb"
+    ],
+    "key": {
+        "b": {
+            "item": "beyond_complex:tin_ingot"
+        }
+    },
+    "result": {
+        "item": "beyond_complex:tin_block",
+        "count": 1
+    }
+}
