@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "beyond_complex:block/bronze_plates",
+    "up": "beyond_complex:block/bronze_plates",
+    "north": "beyond_complex:block/bronze_plates",
+    "east": "beyond_complex:block/bronze_plates",
+    "south": "beyond_complex:block/bronze_plates",
+    "west": "beyond_complex:block/bronze_plates",
+    "particle": "beyond_complex:block/bronze_plates"
+  }
+}

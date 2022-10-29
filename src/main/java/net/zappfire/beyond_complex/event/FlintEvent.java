@@ -1,4 +1,4 @@
-package net.zappfire.beyond_complex.events;
+package net.zappfire.beyond_complex.event;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;

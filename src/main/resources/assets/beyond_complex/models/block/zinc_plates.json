@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "beyond_complex:block/zinc_plates",
+    "up": "beyond_complex:block/zinc_plates",
+    "north": "beyond_complex:block/zinc_plates",
+    "east": "beyond_complex:block/zinc_plates",
+    "south": "beyond_complex:block/zinc_plates",
+    "west": "beyond_complex:block/zinc_plates",
+    "particle": "beyond_complex:block/zinc_plates"
+  }
+}

@@ -15,8 +15,11 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
@@ -27,11 +30,14 @@ import org.jetbrains.annotations.Nullable;
 public class SimpleAlloyKiln extends BaseEntityBlock {
     protected SimpleAlloyKiln(Properties p_54120_) {
         super(p_54120_);
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, Boolean.valueOf(false)));
     }
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
+    public static final BooleanProperty LIT = BlockStateProperties.LIT;
+
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p53105) {
-        p53105.add(FACING);
+        p53105.add(FACING,LIT);
     }
 
 

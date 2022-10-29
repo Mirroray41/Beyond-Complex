@@ -1,0 +1,14 @@
+{
+    "type": "beyond_complex:alloying_t1",
+    "ingredients": [
+        {
+            "item": "minecraft:copper_ingot"
+        },
+        {
+            "item": "beyond_complex:tin_ingot"
+        }
+    ],
+    "output": {
+        "item": "beyond_complex:bronze_ingot"
+    }
+}

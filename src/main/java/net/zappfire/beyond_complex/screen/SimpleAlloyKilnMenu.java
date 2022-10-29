@@ -3,10 +3,7 @@ package net.zappfire.beyond_complex.screen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,24 +17,40 @@ public class SimpleAlloyKilnMenu extends AbstractContainerMenu {
 
     private final SimpleAlloyKilnEntity blockEntity;
     private final Level level;
+    private final ContainerData data;
 
     public SimpleAlloyKilnMenu(int p_38852_, Inventory inv, FriendlyByteBuf extraData) {
-        this(p_38852_, inv, inv.player.level.getBlockEntity(extraData.readBlockPos()));
+        this(p_38852_, inv, inv.player.level.getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(2));
     }
-    public SimpleAlloyKilnMenu(int p_38852_, Inventory inv, BlockEntity entity) {
+    public SimpleAlloyKilnMenu(int p_38852_, Inventory inv, BlockEntity entity, ContainerData data) {
         super(ModMenuTypes.SIMPLE_ALLOY_KILN_MENU.get(), p_38852_);
         checkContainerSize(inv, 4);
         blockEntity = ((SimpleAlloyKilnEntity) entity);
         this.level = inv.player.level;
+        this.data = data;
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
         this.blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
             this.addSlot(new SlotItemHandler(handler, 0, 45, 17));
-            this.addSlot(new SlotItemHandler(handler, 1, 66, 17));
+            this.addSlot(new SlotItemHandler(handler, 1, 67, 17));
             this.addSlot(new SlotItemHandler(handler, 2, 56, 53));
             this.addSlot(new ModResultSlot(handler, 3, 116, 35));
         });
+
+        addDataSlots(data);
+    }
+
+    public boolean isCrafting() {
+        return data.get(0) > 0;
+    }
+
+    public int getScaledProgress() {
+        int progress = this.data.get(0);
+        int maxProgress = this.data.get(1);  // Max Progress
+        int progressArrowSize = 24; // This is the height in pixels of your arrow
+
+        return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
     }
 
 

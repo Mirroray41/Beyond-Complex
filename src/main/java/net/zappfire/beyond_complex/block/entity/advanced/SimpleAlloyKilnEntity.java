@@ -1,5 +1,7 @@
 package net.zappfire.beyond_complex.block.entity.advanced;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -10,7 +12,10 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,11 +26,13 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.zappfire.beyond_complex.block.entity.ModBlockEntities;
 import net.zappfire.beyond_complex.item.ModItems;
+import net.zappfire.beyond_complex.recipe.SimpleAlloyKilnRecipe;
 import net.zappfire.beyond_complex.screen.SimpleAlloyKilnMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     private final ItemStackHandler itemHandler = new ItemStackHandler(4) {
@@ -35,10 +42,40 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
         }
     };
 
+    protected final ContainerData data;
+    private int progress = 0;
+    private int maxProgress = 144;
+    private int temperature = 20;
+    private int isHeated = 0;
+
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     public SimpleAlloyKilnEntity( BlockPos p_155229_, BlockState p_155230_) {
         super(ModBlockEntities.SIMPLE_ALLOY_KILN_ENTITY.get(), p_155229_, p_155230_);
+        this.data = new ContainerData() {
+            public int get(int index) {
+                switch (index) {
+                    case 0: return SimpleAlloyKilnEntity.this.progress;
+                    case 1: return SimpleAlloyKilnEntity.this.maxProgress;
+                    case 2: return SimpleAlloyKilnEntity.this.temperature;
+                    case 3: return SimpleAlloyKilnEntity.this.isHeated;
+                    default: return 0;
+                }
+            }
+
+            public void set(int index, int value) {
+                switch(index) {
+                    case 0: SimpleAlloyKilnEntity.this.progress = value; break;
+                    case 1: SimpleAlloyKilnEntity.this.maxProgress = value; break;
+                    case 2: SimpleAlloyKilnEntity.this.temperature = value; break;
+                    case 3: SimpleAlloyKilnEntity.this.isHeated = value; break;
+                }
+            }
+
+            public int getCount() {
+                return 4;
+            }
+        };
     }
 
     @Override
@@ -49,7 +86,7 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        return new SimpleAlloyKilnMenu(i ,inventory , this);
+        return new SimpleAlloyKilnMenu(i ,inventory , this, this.data);
     }
     @Nonnull
     @Override
@@ -76,6 +113,7 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
         tag.put("inventory", itemHandler.serializeNBT());
+        tag.putInt("simple_alloy_kiln.progress", progress);
         super.saveAdditional(tag);
     }
 
@@ -95,29 +133,66 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     }
 
     public static void tick(Level pLevel, BlockPos pPos, BlockState pState, SimpleAlloyKilnEntity pBlockEntity) {
-        if(hasRecipe(pBlockEntity) && hasNotReachedStackLimit(pBlockEntity)) {
-            craftItem(pBlockEntity);
+        if(hasRecipe(pBlockEntity)) {
+            pBlockEntity.progress++;
+            setChanged(pLevel, pPos, pState);
+            if(pBlockEntity.progress > pBlockEntity.maxProgress) {
+                craftItem(pBlockEntity);
+            }
+        } else {
+            pBlockEntity.resetProgress();
+            setChanged(pLevel, pPos, pState);
         }
     }
 
+    public static boolean hasRecipe(SimpleAlloyKilnEntity entity) {
+        Level level = entity.level;
+        SimpleContainer inventory = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inventory.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
+
+        Optional<SimpleAlloyKilnRecipe> match = level.getRecipeManager()
+                .getRecipeFor(SimpleAlloyKilnRecipe.Type.INSTANCE, inventory, level);
+
+        return match.isPresent() && canInsertAmountIntoOutputSlot(inventory)
+                && canInsertItemIntoOutputSlot(inventory, match.get().getResultItem());
+    }
+
+
+
+
+
     private static void craftItem(SimpleAlloyKilnEntity entity) {
-        entity.itemHandler.extractItem(0, 1, false);
-        entity.itemHandler.extractItem(1, 1, false);
-        entity.itemHandler.extractItem(2, 1, false);
+        Level level = entity.level;
+        SimpleContainer inventory = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inventory.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
 
-        entity.itemHandler.setStackInSlot(3, new ItemStack(ModItems.STRAW_STRING.get(),
-                entity.itemHandler.getStackInSlot(3).getCount() + 1));
+        Optional<SimpleAlloyKilnRecipe> match = level.getRecipeManager()
+                .getRecipeFor(SimpleAlloyKilnRecipe.Type.INSTANCE, inventory, level);
+
+        if(match.isPresent()) {
+            entity.itemHandler.extractItem(0,1, false);
+            entity.itemHandler.extractItem(1,1, false);
+            entity.itemHandler.extractItem(2,1, false);
+            entity.itemHandler.setStackInSlot(3, new ItemStack(match.get().getResultItem().getItem(),
+                    entity.itemHandler.getStackInSlot(3).getCount() + 1));
+
+            entity.resetProgress();
+        }
     }
 
-    private static boolean hasRecipe(SimpleAlloyKilnEntity entity) {
-        boolean hasItemInFuelSlot = entity.itemHandler.getStackInSlot(1).getItem() == ModItems.SHARPENED_FLINT.get();
-        boolean hasItemInFirstSlot = entity.itemHandler.getStackInSlot(1).getItem() == ModItems.SHARPENED_FLINT.get();
-        boolean hasItemInSecondSlot = entity.itemHandler.getStackInSlot(2).getItem() == ModItems.STRAW.get();
-
-        return hasItemInFuelSlot && hasItemInFirstSlot && hasItemInSecondSlot;
+    private void resetProgress() {
+        this.progress = 0;
     }
 
-    private static boolean hasNotReachedStackLimit(SimpleAlloyKilnEntity entity) {
-        return entity.itemHandler.getStackInSlot(3).getCount() < entity.itemHandler.getStackInSlot(3).getMaxStackSize();
+    private static boolean canInsertItemIntoOutputSlot(SimpleContainer inventory, ItemStack output) {
+        return inventory.getItem(3).getItem() == output.getItem() || inventory.getItem(3).isEmpty();
+    }
+
+    private static boolean canInsertAmountIntoOutputSlot(SimpleContainer inventory) {
+        return inventory.getItem(3).getMaxStackSize() > inventory.getItem(3).getCount();
     }
 }

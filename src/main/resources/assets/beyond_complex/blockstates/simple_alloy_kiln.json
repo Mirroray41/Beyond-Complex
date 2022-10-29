@@ -1,17 +1,32 @@
 {
   "variants": {
-    "facing=east": {
+    "facing=east,lit=true": {
+      "model": "beyond_complex:block/simple_alloy_kiln_lit",
+      "y": 90
+    },
+    "facing=east,lit=false": {
       "model": "beyond_complex:block/simple_alloy_kiln",
       "y": 90
     },
-    "facing=north": {
+    "facing=north,lit=true": {
+      "model": "beyond_complex:block/simple_alloy_kiln_lit"
+    },
+    "facing=north,lit=false": {
       "model": "beyond_complex:block/simple_alloy_kiln"
     },
-    "facing=south": {
+    "facing=south,lit=true": {
+      "model": "beyond_complex:block/simple_alloy_kiln_lit",
+      "y": 180
+    },
+    "facing=south,lit=false": {
       "model": "beyond_complex:block/simple_alloy_kiln",
       "y": 180
     },
-    "facing=west": {
+    "facing=west,lit=true": {
+      "model": "beyond_complex:block/simple_alloy_kiln_lit",
+      "y": 270
+    },
+    "facing=west,lit=false": {
       "model": "beyond_complex:block/simple_alloy_kiln",
       "y": 270
     }

@@ -12,6 +12,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.zappfire.beyond_complex.block.ModBlocks;
 import net.zappfire.beyond_complex.block.entity.ModBlockEntities;
 import net.zappfire.beyond_complex.item.ModItems;
+import net.zappfire.beyond_complex.recipe.ModRecipes;
 import net.zappfire.beyond_complex.screen.ModMenuTypes;
 import net.zappfire.beyond_complex.screen.SimpleAlloyKilnScreen;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ public class BeyondComplex
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
         ModMenuTypes.register(modEventBus);
+        ModRecipes.register(modEventBus);
 
         modEventBus.addListener(this::clientSetup);
 

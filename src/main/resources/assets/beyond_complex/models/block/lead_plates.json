@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "beyond_complex:block/lead_plates",
+    "up": "beyond_complex:block/lead_plates",
+    "north": "beyond_complex:block/lead_plates",
+    "east": "beyond_complex:block/lead_plates",
+    "south": "beyond_complex:block/lead_plates",
+    "west": "beyond_complex:block/lead_plates",
+    "particle": "beyond_complex:block/lead_plates"
+  }
+}
