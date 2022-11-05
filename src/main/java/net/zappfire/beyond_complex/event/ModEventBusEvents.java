@@ -6,7 +6,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import net.zappfire.beyond_complex.BeyondComplex;
-import net.zappfire.beyond_complex.recipe.SimpleAlloyKilnRecipe;
+import net.zappfire.beyond_complex.block.simplealloykiln.SimpleAlloyKilnFuelRecipe;
+import net.zappfire.beyond_complex.block.simplealloykiln.SimpleAlloyKilnRecipe;
 
 import javax.annotation.Nonnull;
 
@@ -16,8 +17,8 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void registerModifierSerializers(@Nonnull final RegisterEvent event) {
         event.register(ForgeRegistries.Keys.RECIPE_TYPES, helper -> {
-            helper.register(new ResourceLocation(BeyondComplex.MODID, SimpleAlloyKilnRecipe.Type.ID),
-                    SimpleAlloyKilnRecipe.Type.INSTANCE);
+            helper.register(new ResourceLocation(BeyondComplex.MODID, SimpleAlloyKilnRecipe.Type.ID), SimpleAlloyKilnRecipe.Type.INSTANCE);
+            helper.register(new ResourceLocation(BeyondComplex.MODID, SimpleAlloyKilnFuelRecipe.Type.ID), SimpleAlloyKilnFuelRecipe.Type.INSTANCE);
         });
     }
 }

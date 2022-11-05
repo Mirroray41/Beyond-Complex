@@ -1,4 +1,4 @@
-package net.zappfire.beyond_complex.block.entity;
+package net.zappfire.beyond_complex.registries;
 
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -6,8 +6,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.zappfire.beyond_complex.BeyondComplex;
-import net.zappfire.beyond_complex.block.ModBlocks;
-import net.zappfire.beyond_complex.block.entity.advanced.SimpleAlloyKilnEntity;
+import net.zappfire.beyond_complex.registries.ModBlocks;
+import net.zappfire.beyond_complex.block.simplealloykiln.SimpleAlloyKilnEntity;
 
 public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =

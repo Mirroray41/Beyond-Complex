@@ -1,8 +1,7 @@
-package net.zappfire.beyond_complex.screen;
+package net.zappfire.beyond_complex.registries;
 
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.network.IContainerFactory;
@@ -10,6 +9,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.zappfire.beyond_complex.BeyondComplex;
+import net.zappfire.beyond_complex.block.simplealloykiln.SimpleAlloyKilnMenu;
 
 public class ModMenuTypes {
     public static final DeferredRegister<MenuType<?>> MENUS =

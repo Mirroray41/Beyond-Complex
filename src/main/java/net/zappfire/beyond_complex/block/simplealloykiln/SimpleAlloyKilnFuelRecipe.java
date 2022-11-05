@@ -1,4 +1,4 @@
-package net.zappfire.beyond_complex.recipe;
+package net.zappfire.beyond_complex.block.simplealloykiln;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -11,40 +11,36 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.zappfire.beyond_complex.BeyondComplex;
+import org.jetbrains.annotations.Nullable;
 
-public class SimpleAlloyKilnRecipe implements Recipe<SimpleContainer> {
+public class SimpleAlloyKilnFuelRecipe implements Recipe<SimpleContainer> {
     private final ResourceLocation id;
     private final ItemStack output;
     private final NonNullList<Ingredient> recipeItems;
+    private final int heat;
 
-    public SimpleAlloyKilnRecipe(ResourceLocation id, ItemStack output,
-                                   NonNullList<Ingredient> recipeItems) {
+    public SimpleAlloyKilnFuelRecipe(ResourceLocation id, ItemStack output, NonNullList<Ingredient> recipeItems, int heat) {
         this.id = id;
         this.output = output;
         this.recipeItems = recipeItems;
+        this.heat = heat;
     }
 
     @Override
-    public boolean matches(SimpleContainer p_44002_, Level p_44003_) {
-        if(p_44003_.isClientSide()) {
-            return false;
-        }
-        if(recipeItems.get(0).test(p_44002_.getItem(0))) {
-            return recipeItems.get(1).test(p_44002_.getItem(1));
-        } else if(recipeItems.get(0).test(p_44002_.getItem(1))) {
-            return recipeItems.get(1).test(p_44002_.getItem(0));
-        }
-
-        return false;
+    public boolean matches(SimpleContainer container, Level level) {
+        if (level.isClientSide()) return false;
+        return recipeItems.get(0).test(container.getItem(2));
     }
 
+    public int getMaxHeat() {return heat;}
+
     @Override
-    public ItemStack assemble(SimpleContainer p_44001_) {
+    public ItemStack assemble(SimpleContainer pContainer) {
         return output;
     }
 
     @Override
-    public boolean canCraftInDimensions(int p_43999_, int p_44000_) {
+    public boolean canCraftInDimensions(int pWidth, int pHeight) {
         return true;
     }
 
@@ -68,58 +64,53 @@ public class SimpleAlloyKilnRecipe implements Recipe<SimpleContainer> {
         return Type.INSTANCE;
     }
 
-    public static class Type implements RecipeType<SimpleAlloyKilnRecipe> {
-        private Type() { }
+    public static class Type implements RecipeType<SimpleAlloyKilnFuelRecipe> {
+        private Type() {}
         public static final Type INSTANCE = new Type();
-        public static final String ID = "alloying_t1";
+        public static final String ID = "alloy_t1_fuel";
     }
 
-    public static class Serializer implements RecipeSerializer<SimpleAlloyKilnRecipe> {
+    public static class Serializer implements RecipeSerializer<SimpleAlloyKilnFuelRecipe> {
         public static final Serializer INSTANCE = new Serializer();
-        public static final ResourceLocation ID =
-                new ResourceLocation(BeyondComplex.MODID,"alloying_t1");
+        public static final ResourceLocation ID = new ResourceLocation(BeyondComplex.MODID, "alloy_t1_fuel");
 
         @Override
-        public SimpleAlloyKilnRecipe fromJson(ResourceLocation id, JsonObject json) {
+        public SimpleAlloyKilnFuelRecipe fromJson(ResourceLocation id, JsonObject json) {
             ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "output"));
 
-            JsonArray ingredients = GsonHelper.getAsJsonArray(json, "ingredients");
-            NonNullList<Ingredient> inputs = NonNullList.withSize(2, Ingredient.EMPTY);
+            JsonArray ingredients = GsonHelper.getAsJsonArray(json, "fuel");
+            NonNullList<Ingredient> inputs = NonNullList.withSize(1, Ingredient.EMPTY);
 
+            int heat = GsonHelper.getAsInt(json, "max_heat");
             for (int i = 0; i < inputs.size(); i++) {
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
-
-            return new SimpleAlloyKilnRecipe(id, output, inputs);
+            return new SimpleAlloyKilnFuelRecipe(id, output, inputs, heat);
         }
 
         @Override
-        public SimpleAlloyKilnRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+        public @Nullable SimpleAlloyKilnFuelRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
             NonNullList<Ingredient> inputs = NonNullList.withSize(buf.readInt(), Ingredient.EMPTY);
-
+            ItemStack output = buf.readItem();
+            int heat = buf.readInt();
             for (int i = 0; i < inputs.size(); i++) {
                 inputs.set(i, Ingredient.fromNetwork(buf));
             }
-
-            ItemStack output = buf.readItem();
-            return new SimpleAlloyKilnRecipe(id, output, inputs);
+            return new SimpleAlloyKilnFuelRecipe(id, output, inputs, heat);
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf buf, SimpleAlloyKilnRecipe recipe) {
+        public void toNetwork(FriendlyByteBuf buf, SimpleAlloyKilnFuelRecipe recipe) {
             buf.writeInt(recipe.getIngredients().size());
+            buf.writeInt(recipe.heat);
             for (Ingredient ing : recipe.getIngredients()) {
                 ing.toNetwork(buf);
             }
             buf.writeItemStack(recipe.getResultItem(), false);
         }
-
-
-
         @SuppressWarnings("unchecked") // Need this wrapper, because generics
         private static <G> Class<G> castClass(Class<?> cls) {
             return (Class<G>)cls;
         }
     }
-
 }

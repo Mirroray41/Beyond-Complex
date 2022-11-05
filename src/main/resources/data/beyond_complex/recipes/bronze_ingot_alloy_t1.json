@@ -8,6 +8,7 @@
             "item": "beyond_complex:tin_ingot"
         }
     ],
+    "heat_req": 200,
     "output": {
         "item": "beyond_complex:bronze_ingot"
     }

@@ -1,4 +1,4 @@
-package net.zappfire.beyond_complex.screen;
+package net.zappfire.beyond_complex.block.simplealloykiln;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -9,8 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-import net.zappfire.beyond_complex.block.ModBlocks;
-import net.zappfire.beyond_complex.block.entity.advanced.SimpleAlloyKilnEntity;
+import net.zappfire.beyond_complex.registries.ModBlocks;
+import net.zappfire.beyond_complex.registries.ModMenuTypes;
 import net.zappfire.beyond_complex.screen.slot.ModResultSlot;
 
 public class SimpleAlloyKilnMenu extends AbstractContainerMenu {
@@ -25,7 +25,7 @@ public class SimpleAlloyKilnMenu extends AbstractContainerMenu {
     public SimpleAlloyKilnMenu(int p_38852_, Inventory inv, BlockEntity entity, ContainerData data) {
         super(ModMenuTypes.SIMPLE_ALLOY_KILN_MENU.get(), p_38852_);
         checkContainerSize(inv, 4);
-        blockEntity = ((SimpleAlloyKilnEntity) entity);
+        blockEntity = (SimpleAlloyKilnEntity) entity;
         this.level = inv.player.level;
         this.data = data;
         addPlayerInventory(inv);
@@ -52,6 +52,8 @@ public class SimpleAlloyKilnMenu extends AbstractContainerMenu {
 
         return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
     }
+
+    public SimpleAlloyKilnEntity getBlockEntity() { return this.blockEntity; }
 
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons

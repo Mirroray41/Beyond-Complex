@@ -10,7 +10,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.zappfire.beyond_complex.BeyondComplex;
-import net.zappfire.beyond_complex.item.ModItems;
+import net.zappfire.beyond_complex.registries.ModItems;
 
 @Mod.EventBusSubscriber(modid = BeyondComplex.MODID)
 public class FlintEvent {

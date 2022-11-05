@@ -1,4 +1,4 @@
-package net.zappfire.beyond_complex.block.advanced;
+package net.zappfire.beyond_complex.block.pebble;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

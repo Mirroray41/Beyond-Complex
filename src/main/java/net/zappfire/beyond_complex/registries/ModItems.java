@@ -1,4 +1,4 @@
-package net.zappfire.beyond_complex.item;
+package net.zappfire.beyond_complex.registries;
 
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;

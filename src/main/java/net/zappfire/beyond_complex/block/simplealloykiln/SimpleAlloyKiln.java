@@ -1,4 +1,4 @@
-package net.zappfire.beyond_complex.block.advanced;
+package net.zappfire.beyond_complex.block.simplealloykiln;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -23,8 +22,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
-import net.zappfire.beyond_complex.block.entity.ModBlockEntities;
-import net.zappfire.beyond_complex.block.entity.advanced.SimpleAlloyKilnEntity;
+import net.zappfire.beyond_complex.registries.ModBlockEntities;
 import org.jetbrains.annotations.Nullable;
 
 public class SimpleAlloyKiln extends BaseEntityBlock {

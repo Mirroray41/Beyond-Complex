@@ -1,7 +1,5 @@
-package net.zappfire.beyond_complex.block.entity.advanced;
+package net.zappfire.beyond_complex.block.simplealloykiln;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -14,20 +12,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import net.zappfire.beyond_complex.block.entity.ModBlockEntities;
-import net.zappfire.beyond_complex.item.ModItems;
-import net.zappfire.beyond_complex.recipe.SimpleAlloyKilnRecipe;
-import net.zappfire.beyond_complex.screen.SimpleAlloyKilnMenu;
+import net.zappfire.beyond_complex.networking.packet.EnergySyncS2CPacket;
+import net.zappfire.beyond_complex.registries.ModBlockEntities;
+import net.zappfire.beyond_complex.registries.ModPackets;
+import net.zappfire.beyond_complex.util.ModEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,10 +43,20 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = 144;
-    private int temperature = 20;
+    private int temperature = 2000;
     private int isHeated = 0;
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
+
+    private final ModEnergyStorage ENERGY_STORAGE = new ModEnergyStorage(2000, 0) {
+        @Override
+        public void onEnergyChanged() {
+            setChanged();
+            ModPackets.sendToClients(new EnergySyncS2CPacket(this.energy, getBlockPos()));
+        }
+    };
+
+    private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
     public SimpleAlloyKilnEntity( BlockPos p_155229_, BlockState p_155230_) {
         super(ModBlockEntities.SIMPLE_ALLOY_KILN_ENTITY.get(), p_155229_, p_155230_);
@@ -88,11 +96,17 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         return new SimpleAlloyKilnMenu(i ,inventory , this, this.data);
     }
+    public IEnergyStorage getEnergyStorage() { return ENERGY_STORAGE; }
+    public void setEnergyLevel(int energy) { this.ENERGY_STORAGE.setEnergy(energy); }
+
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @javax.annotation.Nullable Direction side) {
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return lazyItemHandler.cast();
+        }
+        if (cap == ForgeCapabilities.ENERGY) {
+            return lazyEnergyHandler.cast();
         }
 
         return super.getCapability(cap, side);
@@ -102,18 +116,21 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     public void onLoad() {
         super.onLoad();
         lazyItemHandler = LazyOptional.of(() -> itemHandler);
+        lazyEnergyHandler = LazyOptional.of(() -> ENERGY_STORAGE);
     }
 
     @Override
     public void invalidateCaps()  {
         super.invalidateCaps();
         lazyItemHandler.invalidate();
+        lazyEnergyHandler.invalidate();
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
         tag.put("inventory", itemHandler.serializeNBT());
         tag.putInt("simple_alloy_kiln.progress", progress);
+        tag.putInt("simple_alloy_kiln.energy", ENERGY_STORAGE.getEnergyStored());
         super.saveAdditional(tag);
     }
 
@@ -121,6 +138,8 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     public void load(CompoundTag nbt) {
         super.load(nbt);
         itemHandler.deserializeNBT(nbt.getCompound("inventory"));
+        progress = nbt.getInt("simple_alloy_kiln.progress");
+        ENERGY_STORAGE.setEnergy(nbt.getInt("simple_alloy_kiln.energy"));
     }
 
     public void drops() {
@@ -134,14 +153,21 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
 
     public static void tick(Level pLevel, BlockPos pPos, BlockState pState, SimpleAlloyKilnEntity pBlockEntity) {
         if(hasRecipe(pBlockEntity)) {
+
             pBlockEntity.progress++;
             setChanged(pLevel, pPos, pState);
-            if(pBlockEntity.progress > pBlockEntity.maxProgress) {
+
+            if(pBlockEntity.progress >= pBlockEntity.maxProgress) {
                 craftItem(pBlockEntity);
             }
         } else {
             pBlockEntity.resetProgress();
             setChanged(pLevel, pPos, pState);
+        }
+        if (hasHeatRecipe(pBlockEntity) && pBlockEntity.ENERGY_STORAGE.getEnergyStored() < getMaxHeatForFuel(pBlockEntity)) {
+            pBlockEntity.ENERGY_STORAGE.receiveEnergy(5, false);
+        } else {
+            pBlockEntity.ENERGY_STORAGE.receiveEnergy(5, false);
         }
     }
 
@@ -154,14 +180,31 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
 
         Optional<SimpleAlloyKilnRecipe> match = level.getRecipeManager()
                 .getRecipeFor(SimpleAlloyKilnRecipe.Type.INSTANCE, inventory, level);
-
+        match.ifPresent(simpleAlloyKilnRecipe -> System.out.println(simpleAlloyKilnRecipe.getHeatReq()));
         return match.isPresent() && canInsertAmountIntoOutputSlot(inventory)
-                && canInsertItemIntoOutputSlot(inventory, match.get().getResultItem());
+                && canInsertItemIntoOutputSlot(inventory, match.get().getResultItem()) && entity.ENERGY_STORAGE.getEnergyStored() >= match.get().getHeatReq();
     }
 
+    private static boolean hasHeatRecipe(SimpleAlloyKilnEntity entity) {
+        Level level = entity.level;
+        SimpleContainer inventory = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inventory.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
+        Optional<SimpleAlloyKilnFuelRecipe> match = level.getRecipeManager().getRecipeFor(SimpleAlloyKilnFuelRecipe.Type.INSTANCE, inventory, level);
 
-
-
+        return match.isPresent();
+    }
+    // Gets the max heat for the inputted fuel.
+    private static int getMaxHeatForFuel(SimpleAlloyKilnEntity entity) {
+        Level level = entity.level;
+        SimpleContainer inventory = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inventory.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
+        Optional<SimpleAlloyKilnFuelRecipe> match = level.getRecipeManager().getRecipeFor(SimpleAlloyKilnFuelRecipe.Type.INSTANCE, inventory, level);
+        return match.map(SimpleAlloyKilnFuelRecipe::getMaxHeat).orElse(0);
+    }
 
     private static void craftItem(SimpleAlloyKilnEntity entity) {
         Level level = entity.level;

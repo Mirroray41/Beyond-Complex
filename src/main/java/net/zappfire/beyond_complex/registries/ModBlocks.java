@@ -1,4 +1,4 @@
-package net.zappfire.beyond_complex.block;
+package net.zappfire.beyond_complex.registries;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -11,9 +11,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.zappfire.beyond_complex.BeyondComplex;
-import net.zappfire.beyond_complex.block.advanced.Pebble;
-import net.zappfire.beyond_complex.block.advanced.SimpleAlloyKiln;
-import net.zappfire.beyond_complex.item.ModItems;
+import net.zappfire.beyond_complex.block.pebble.Pebble;
+import net.zappfire.beyond_complex.block.simplealloykiln.SimpleAlloyKiln;
 import net.zappfire.beyond_complex.tabs.ModCreativeModeTab;
 
 import java.util.function.Supplier;
