@@ -1,0 +1,12 @@
+{
+  "type": "beyond_complex:alloy_t1_fuel",
+  "fuel": [
+    {
+      "item": "minecraft:coal_block"
+    }
+  ],
+  "max_heat": 1500,
+  "output": {
+    "item": "minecraft:dirt"
+  }
+}

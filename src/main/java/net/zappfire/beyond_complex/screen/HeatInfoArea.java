@@ -17,29 +17,31 @@ import java.util.List;
  *  Details can be found in the license file in the root folder of this project
  */
 public class HeatInfoArea extends InfoArea {
-    private final IEnergyStorage energy;
+    private final int temp;
+    private final int maxTemp;
 
     public HeatInfoArea(int xMin, int yMin)  {
-        this(xMin, yMin, null,8,64);
+        this(xMin, yMin, 0, 0,8,64);
     }
 
-    public HeatInfoArea(int xMin, int yMin, IEnergyStorage energy)  {
-        this(xMin, yMin, energy,8,64);
+    public HeatInfoArea(int xMin, int yMin, int temp, int maxTemp)  {
+        this(xMin, yMin, temp, maxTemp,8,64);
     }
 
-    public HeatInfoArea(int xMin, int yMin, IEnergyStorage energy, int width, int height)  {
+    public HeatInfoArea(int xMin, int yMin, int temp, int maxTemp, int width, int height)  {
         super(new Rect2i(xMin, yMin, width, height));
-        this.energy = energy;
+        this.temp = temp;
+        this.maxTemp = maxTemp;
     }
 
    public List<Component> getTooltips() {
-        return List.of(Component.literal(energy.getEnergyStored()+" K"));
+        return List.of(Component.literal(temp+ "/"+maxTemp+" C"));
    }
 
     @Override
     public void draw(PoseStack transform) {
         final int height = area.getHeight();
-        int stored = (int)(height*(energy.getEnergyStored()/(float)energy.getMaxEnergyStored()));
+        int stored = (int)(height*(temp/(float) maxTemp));
         fillGradient(
                 transform,
                 area.getX(), area.getY()+(height-stored),

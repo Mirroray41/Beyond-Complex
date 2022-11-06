@@ -2,6 +2,7 @@ package net.zappfire.beyond_complex.block.simplealloykiln;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -28,21 +29,23 @@ public class SimpleAlloyKilnScreen extends AbstractContainerScreen<SimpleAlloyKi
         assignHeatInfoArea();
     }
 
+
+
     private void assignHeatInfoArea() {
         int x = (width - imageWidth) / 2;
         int y = (height - imageWidth) /2;
-        heatInfoArea = new HeatInfoArea(x + 156, y + 13, menu.getBlockEntity().getEnergyStorage());
+        heatInfoArea = new HeatInfoArea(x + 10, y + 13, menu.getBlockEntity().data.get(2), menu.getBlockEntity().data.get(3));
     }
-
     @Override
     protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {
         int x = (width - imageWidth) / 2;
-        int y = (height - imageWidth) /2;
+        int y = (height - imageHeight) / 2;
+
         renderHeatAreaTooltips(pPoseStack, pMouseX, pMouseY, x, y);
     }
 
     private void renderHeatAreaTooltips(PoseStack pPoseStack, int pMouseX, int pMouseY, int x, int y) {
-        if (isMouseAboveArea(pMouseX, pMouseY, x, y, 156, 13, 8, 64)) {
+        if (isMouseAboveArea(pMouseX, pMouseY, x, y, 10, 13, 8, 64)) {
             renderTooltip(pPoseStack, heatInfoArea.getTooltips(), Optional.empty(), pMouseX - x, pMouseY - y);
         }
     }
@@ -57,12 +60,18 @@ public class SimpleAlloyKilnScreen extends AbstractContainerScreen<SimpleAlloyKi
 
         this.blit(poseStack, x, y, 0, 0, imageWidth, imageHeight);
 
-        this.blit(poseStack, x, y, 0, 0, imageWidth, imageHeight);
+        renderProgressArrow(poseStack, x, y);
+        renderHeatBar(poseStack, x, y);
 
+    }
+    private void renderHeatBar(PoseStack stack, int x, int y) {
+        // pose stack, location x, location y, x loc on png, y loc on png, width, height
 
-
+        blit(stack, x+8, y+69 - menu.getScaledHeat(), 176, 84 - menu.getScaledHeat(), 14, menu.getScaledHeat());
+    }
+    private void renderProgressArrow(PoseStack stack, int x, int y) {
         if(menu.isCrafting()) {
-            blit(poseStack, x + 79, y + 35, 176, 14, menu.getScaledProgress(), 17);
+            blit(stack, x + 79, y + 35, 176, 14, menu.getScaledProgress(), 17);
         }
     }
 

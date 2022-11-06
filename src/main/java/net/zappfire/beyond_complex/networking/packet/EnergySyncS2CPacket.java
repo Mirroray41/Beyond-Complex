@@ -31,12 +31,6 @@ public class EnergySyncS2CPacket {
     public boolean handle (Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
-            if (Minecraft.getInstance().level.getBlockEntity(pos) instanceof SimpleAlloyKilnEntity blockEntity) {
-                blockEntity.setEnergyLevel(energy);
-                if (Minecraft.getInstance().player.containerMenu instanceof SimpleAlloyKilnMenu menu && menu.getBlockEntity().getBlockPos().equals(pos)) {
-                    blockEntity.setEnergyLevel(energy);
-                }
-            }
         });
         return true;
     }

@@ -19,9 +19,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.zappfire.beyond_complex.block.WrappedHandler;
 import net.zappfire.beyond_complex.networking.packet.EnergySyncS2CPacket;
 import net.zappfire.beyond_complex.registries.ModBlockEntities;
 import net.zappfire.beyond_complex.registries.ModPackets;
@@ -29,7 +29,7 @@ import net.zappfire.beyond_complex.util.ModEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import java.util.Map;
 import java.util.Optional;
 
 public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
@@ -43,21 +43,10 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = 144;
-    private int temperature = 2000;
-    private int isHeated = 0;
+    private int temperature = 0;
+    private int maxTemp = 2000;
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
-
-    private final ModEnergyStorage ENERGY_STORAGE = new ModEnergyStorage(2000, 0) {
-        @Override
-        public void onEnergyChanged() {
-            setChanged();
-            ModPackets.sendToClients(new EnergySyncS2CPacket(this.energy, getBlockPos()));
-        }
-    };
-
-    private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
-
     public SimpleAlloyKilnEntity( BlockPos p_155229_, BlockState p_155230_) {
         super(ModBlockEntities.SIMPLE_ALLOY_KILN_ENTITY.get(), p_155229_, p_155230_);
         this.data = new ContainerData() {
@@ -66,7 +55,7 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
                     case 0: return SimpleAlloyKilnEntity.this.progress;
                     case 1: return SimpleAlloyKilnEntity.this.maxProgress;
                     case 2: return SimpleAlloyKilnEntity.this.temperature;
-                    case 3: return SimpleAlloyKilnEntity.this.isHeated;
+                    case 3: return SimpleAlloyKilnEntity.this.maxTemp;
                     default: return 0;
                 }
             }
@@ -76,7 +65,7 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
                     case 0: SimpleAlloyKilnEntity.this.progress = value; break;
                     case 1: SimpleAlloyKilnEntity.this.maxProgress = value; break;
                     case 2: SimpleAlloyKilnEntity.this.temperature = value; break;
-                    case 3: SimpleAlloyKilnEntity.this.isHeated = value; break;
+                    case 3: SimpleAlloyKilnEntity.this.maxTemp = value; break;
                 }
             }
 
@@ -96,19 +85,24 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         return new SimpleAlloyKilnMenu(i ,inventory , this, this.data);
     }
-    public IEnergyStorage getEnergyStorage() { return ENERGY_STORAGE; }
-    public void setEnergyLevel(int energy) { this.ENERGY_STORAGE.setEnergy(energy); }
 
-    @Nonnull
+
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @javax.annotation.Nullable Direction side) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return lazyItemHandler.cast();
-        }
-        if (cap == ForgeCapabilities.ENERGY) {
-            return lazyEnergyHandler.cast();
-        }
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if(cap == ForgeCapabilities.ITEM_HANDLER) {
+            if (side == null) { return lazyItemHandler.cast(); }
+            if (directionWrappedHandlerMap.containsKey(side)) {
+                Direction localDir = this.getBlockState().getValue(SimpleAlloyKiln.FACING);
 
+                if (side == Direction.UP || side == Direction.DOWN) { return directionWrappedHandlerMap.get(side).cast(); }
+                return switch (localDir) {
+                    case EAST -> directionWrappedHandlerMap.get(side.getClockWise()).cast();
+                    case SOUTH -> directionWrappedHandlerMap.get(side).cast();
+                    case WEST -> directionWrappedHandlerMap.get(side.getCounterClockWise()).cast();
+                    default -> directionWrappedHandlerMap.get(side.getOpposite()).cast();
+                };
+            }
+        }
         return super.getCapability(cap, side);
     }
 
@@ -116,21 +110,19 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     public void onLoad() {
         super.onLoad();
         lazyItemHandler = LazyOptional.of(() -> itemHandler);
-        lazyEnergyHandler = LazyOptional.of(() -> ENERGY_STORAGE);
     }
 
     @Override
     public void invalidateCaps()  {
         super.invalidateCaps();
         lazyItemHandler.invalidate();
-        lazyEnergyHandler.invalidate();
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
         tag.put("inventory", itemHandler.serializeNBT());
         tag.putInt("simple_alloy_kiln.progress", progress);
-        tag.putInt("simple_alloy_kiln.energy", ENERGY_STORAGE.getEnergyStored());
+        tag.putInt("simple_alloy_kiln.temp", temperature);
         super.saveAdditional(tag);
     }
 
@@ -139,7 +131,7 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
         super.load(nbt);
         itemHandler.deserializeNBT(nbt.getCompound("inventory"));
         progress = nbt.getInt("simple_alloy_kiln.progress");
-        ENERGY_STORAGE.setEnergy(nbt.getInt("simple_alloy_kiln.energy"));
+        temperature = (nbt.getInt("simple_alloy_kiln.temp"));
     }
 
     public void drops() {
@@ -152,8 +144,9 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     }
 
     public static void tick(Level pLevel, BlockPos pPos, BlockState pState, SimpleAlloyKilnEntity pBlockEntity) {
-        if(hasRecipe(pBlockEntity)) {
+        if (pLevel.isClientSide()) return;
 
+        if(hasRecipe(pBlockEntity) && pBlockEntity.temperature >= getRecipeHeatReq(pBlockEntity)) {
             pBlockEntity.progress++;
             setChanged(pLevel, pPos, pState);
 
@@ -164,10 +157,11 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
             pBlockEntity.resetProgress();
             setChanged(pLevel, pPos, pState);
         }
-        if (hasHeatRecipe(pBlockEntity) && pBlockEntity.ENERGY_STORAGE.getEnergyStored() < getMaxHeatForFuel(pBlockEntity)) {
-            pBlockEntity.ENERGY_STORAGE.receiveEnergy(5, false);
+
+        if (hasHeatRecipe(pBlockEntity) && pBlockEntity.temperature <= getMaxHeatForFuel(pBlockEntity)) {
+            pBlockEntity.temperature += 5;
         } else {
-            pBlockEntity.ENERGY_STORAGE.receiveEnergy(5, false);
+            if (pBlockEntity.temperature > 0) pBlockEntity.temperature--;
         }
     }
 
@@ -180,9 +174,18 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
 
         Optional<SimpleAlloyKilnRecipe> match = level.getRecipeManager()
                 .getRecipeFor(SimpleAlloyKilnRecipe.Type.INSTANCE, inventory, level);
-        match.ifPresent(simpleAlloyKilnRecipe -> System.out.println(simpleAlloyKilnRecipe.getHeatReq()));
         return match.isPresent() && canInsertAmountIntoOutputSlot(inventory)
-                && canInsertItemIntoOutputSlot(inventory, match.get().getResultItem()) && entity.ENERGY_STORAGE.getEnergyStored() >= match.get().getHeatReq();
+                && canInsertItemIntoOutputSlot(inventory, match.get().getResultItem());
+    }
+
+    private static int getRecipeHeatReq(SimpleAlloyKilnEntity entity) {
+        Level level = entity.level;
+        SimpleContainer inv = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inv.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
+        Optional<SimpleAlloyKilnRecipe> match = level.getRecipeManager().getRecipeFor(SimpleAlloyKilnRecipe.Type.INSTANCE, inv, level);
+        return match.get().getHeatReq();
     }
 
     private static boolean hasHeatRecipe(SimpleAlloyKilnEntity entity) {
@@ -219,7 +222,6 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
         if(match.isPresent()) {
             entity.itemHandler.extractItem(0,1, false);
             entity.itemHandler.extractItem(1,1, false);
-            entity.itemHandler.extractItem(2,1, false);
             entity.itemHandler.setStackInSlot(3, new ItemStack(match.get().getResultItem().getItem(),
                     entity.itemHandler.getStackInSlot(3).getCount() + 1));
 
@@ -238,4 +240,13 @@ public class SimpleAlloyKilnEntity extends BlockEntity implements MenuProvider {
     private static boolean canInsertAmountIntoOutputSlot(SimpleContainer inventory) {
         return inventory.getItem(3).getMaxStackSize() > inventory.getItem(3).getCount();
     }
+    private final Map<Direction, LazyOptional<WrappedHandler>> directionWrappedHandlerMap =
+            Map.of(Direction.DOWN, LazyOptional.of(() -> new WrappedHandler(itemHandler, (i) -> i == 2, (i, s) -> false)),
+                    Direction.NORTH, LazyOptional.of(() -> new WrappedHandler(itemHandler, (index) -> index == 1,
+                            (index, stack) -> itemHandler.isItemValid(1, stack))),
+                    Direction.SOUTH, LazyOptional.of(() -> new WrappedHandler(itemHandler, (i) -> i == 2, (i, s) -> false)),
+                    Direction.EAST, LazyOptional.of(() -> new WrappedHandler(itemHandler, (i) -> i == 1,
+                            (index, stack) -> itemHandler.isItemValid(1, stack))),
+                    Direction.WEST, LazyOptional.of(() -> new WrappedHandler(itemHandler, (index) -> index == 0 || index == 1,
+                            (index, stack) -> itemHandler.isItemValid(0, stack) || itemHandler.isItemValid(1, stack))));
 }

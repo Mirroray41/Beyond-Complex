@@ -7,6 +7,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.zappfire.beyond_complex.registries.ModBlocks;
@@ -20,7 +21,7 @@ public class SimpleAlloyKilnMenu extends AbstractContainerMenu {
     private final ContainerData data;
 
     public SimpleAlloyKilnMenu(int p_38852_, Inventory inv, FriendlyByteBuf extraData) {
-        this(p_38852_, inv, inv.player.level.getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(2));
+        this(p_38852_, inv, inv.player.level.getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(4));
     }
     public SimpleAlloyKilnMenu(int p_38852_, Inventory inv, BlockEntity entity, ContainerData data) {
         super(ModMenuTypes.SIMPLE_ALLOY_KILN_MENU.get(), p_38852_);
@@ -31,7 +32,7 @@ public class SimpleAlloyKilnMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
+        this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
             this.addSlot(new SlotItemHandler(handler, 0, 45, 17));
             this.addSlot(new SlotItemHandler(handler, 1, 67, 17));
             this.addSlot(new SlotItemHandler(handler, 2, 56, 53));
@@ -51,6 +52,13 @@ public class SimpleAlloyKilnMenu extends AbstractContainerMenu {
         int progressArrowSize = 24; // This is the height in pixels of your arrow
 
         return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
+    }
+    public int getScaledHeat() {
+        int heat = this.data.get(2);
+        int maxHeat = this.data.get(3);
+        int heatBarSize = 54;
+
+        return maxHeat != 0 && heat != 0 ? heat * heatBarSize / maxHeat : 0;
     }
 
     public SimpleAlloyKilnEntity getBlockEntity() { return this.blockEntity; }
